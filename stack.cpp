@@ -2,19 +2,33 @@
 
 const int CapacityDoubler = 2;
 
+
 Err_t StackInit (Stack_t* stk, size_t capacity)
 {
-    Verificator (stk, mode);
-    stk -> size = 0;
-    stk -> data = (int*) calloc (capacity, sizeof(int));
+    Commands mode = INIT;
+
+    size_t oldCapacity = stk -> capacity;
+
     stk -> capacity = capacity;
-    return CORRECT;
+    //Verificator (stk, INIT);
+    VERIFY(stk, mode, WRONG_VALUE_CONST);
+    if (global_error == CORRECT)
+        stk -> data = (int*) calloc (capacity, sizeof(int));
+    else
+        {
+            stk -> capacity = oldCapacity;
+        }
+
+    return global_error;
 }
 
 Err_t StackPush (Stack_t* stk, int value)
 {
-
-    Verificator (stk, mode);
+    Commands mode = PUSH;
+    VERIFY(stk, mode, value);
+    //Verificator (stk, PUSH, value);
+    if (global_error != CORRECT)
+        return global_error;
 
     if (stk -> size < stk -> capacity)
     {
@@ -34,20 +48,34 @@ Err_t StackPush (Stack_t* stk, int value)
     return CORRECT;
 }
 
-Err_t StackPop (Stack_t* stk, int *x)
+int StackPop (Stack_t* stk)
 {
-    Verificator (stk, mode);
-    *x = stk -> data [stk -> size - 1];
-    return CORRECT;
+    VERIFY(stk, POP, WRONG_VALUE_CONST);
+    if (global_error == CORRECT)
+    //if (Verificator (stk, POP) == CORRECT)
+    {
+    int x = stk -> data [stk -> size - 1];
+    stk -> data [stk -> size -1] = 0;
+    stk -> size--;
+    return x;
+    }
+    return -1;
 }
 
-void StackDestroy (Stack_t* stk)
+Err_t StackDestroy (Stack_t* stk)
 {
-    Verificator (stk, mode);
+    Commands mode = DESTROY;
+    VERIFY(stk, mode, WRONG_VALUE_CONST);
+    if (global_error == CORRECT)
+    {
+    //Verificator (stk, DESTROY);
     free(stk -> data);
     stk -> data = NULL;
     stk -> size = 0;
     stk -> capacity = 0;
+    return CORRECT;
+    }
+    return global_error;
     //stk = NULL;
 
 }

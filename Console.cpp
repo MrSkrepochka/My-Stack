@@ -3,13 +3,15 @@
 
 bool Console(Stack_t* stk)
 {
-    int x = 0;
-
+    int valueForPush = WRONG_VALUE_CONST;
+    int PopValue = 0;
     size_t capacity = 0;
+    //char* command = (char*) calloc (5, sizeof(char));
 
-    char command[5] ="";
+    char command[5] = "";
 
-    bool Indicator = true;
+
+    Commands mode = WRONG_COMMAND;
 
     fprintf(stdout, "Enter command\n");
 
@@ -38,36 +40,51 @@ bool Console(Stack_t* stk)
 
         fscanf (stdin, "%zu", &capacity);
         StackInit (stk, capacity);
-
-        Indicator = true;
+        if (global_error != CORRECT)
+            nErrors++;
+        return true;
         break;
     case PUSH:
 
-        //fprintf (stdout, "Enter integer value\n");
+        fprintf (stdout, "Enter integer value\n");
         fscanf (stdin,"%d", &valueForPush);
         StackPush (stk, valueForPush);
-
-        Indicator = true;
+        if (global_error != CORRECT)
+            {
+            nErrors++;
+            return true;
+            }
         break;
     case POP:
-        StackPop (stk, &x);
-        Indicator = true;
+        PopValue = StackPop (stk);
+        if (global_error != CORRECT)
+            {
+            nErrors++;
+            return true;
+            }
+        fprintf(stdout, "%d\n", PopValue);
+        return true;
         break;
     case DESTROY:
         StackDestroy(stk);
-        Indicator = true;
+        if (global_error != CORRECT)
+            nErrors++;
+
+        return true;
         break;
     case EXIT:
-        if (stk != NULL)
+        if (stk -> data != NULL)
             StackDestroy(stk);
-        Indicator = false;
+        return false;
         break;
     case WRONG_COMMAND:
-        fprintf (stdout, "Incorrect input\n");
+        fprintf (stdout, "Incorrect iput\n");
+        nErrors++;
+        return true;
         break;
     default:
         break;
     }
-
-    return Indicator;
+    //free(command);
+    return true;
 }

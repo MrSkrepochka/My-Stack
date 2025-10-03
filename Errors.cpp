@@ -1,5 +1,9 @@
 #include "Errors.h"
 
+int nErrors = 0;
+Err_t global_error = CORRECT;
+
+
 void StackDump (Stack_t* stk)
 {
     fprintf(stdout, "StackDump called from %s in %s:%d\n\t", __func__, __FILE__, __LINE__ );
@@ -11,7 +15,7 @@ void StackDump (Stack_t* stk)
     {
         fprintf(stdout, "* [%zu] = %d\n\t\t\t", element, stk -> data[element]);
     }
-    fprintf(stdout,"\n\t\t}");
+    fprintf(stdout,"\n\t\t}\n");
 }
 
 void PrintError (Err_t err)
@@ -21,19 +25,19 @@ void PrintError (Err_t err)
         case CORRECT:
             break;
         case STACK_NOT_FOUND:
-            fprintf(stderr, "STACK_NOT_FOUND\n");
+            fprintf(stdout, "STACK_NOT_FOUND\n");
             break;
         case STACK_ALREADY_EXISTS:
-            fprintf(stderr, "STACK_ALREADY_EXISTS\n");
+            fprintf(stdout, "STACK_ALREADY_EXISTS\n");
             break;
         case WRONG_CAPACITY:
-            fprintf(stderr, "WRONG_CAPACITY\n");
+            fprintf(stdout, "WRONG_CAPACITY\n");
             break;
         case WRONG_VALUE:
-            fprintf(stderr, "WRONG_VALUE\n");
+            fprintf(stdout, "WRONG_VALUE\n");
             break;
         case EMPTY_STACK:
-            fprintf(stderr, "EMPTY_STACK\n");
+            fprintf(stdout, "EMPTY_STACK\n");
             break;
         default:
             break;
@@ -42,15 +46,16 @@ void PrintError (Err_t err)
     //*err = CORRECT;
 }
 
-Err_t StackVerify(Stack_t* stk, Commands mode1, int ValueForPush1)
+Err_t StackVerify(Stack_t* stk, Commands mode, int ValueForPush)
 {
-    if (!stk)
-        return STACK_NOT_FOUND;
 
-    switch (mode1)
+    assert (stk);
+    switch (mode)
     {
     case POP:
-        if (stk -> size == 0 )
+        if (stk -> data == NULL)
+            return STACK_NOT_FOUND;
+        if (stk -> size <= 0 )
             return EMPTY_STACK;
         break;
     case INIT:
@@ -66,20 +71,24 @@ Err_t StackVerify(Stack_t* stk, Commands mode1, int ValueForPush1)
     case PUSH:
         if (stk -> data == NULL)
             return STACK_NOT_FOUND;
-        if (ValueForPush1 == WRONG_VALUE_CONST || isfinite (ValueForPush1) == 0)
+        if (ValueForPush == WRONG_VALUE_CONST)
             return WRONG_VALUE;
-            break;
+        break;
     default:
         break;
     }
     return CORRECT;
 }
 
-void Verificator (Stack_t* stk, Commands mode1)
+Err_t Verificator (Stack_t* stk, Commands mode, int value)
 {
-    Err_t code = StackVerify(stk, mode1);
+    Err_t code = StackVerify(stk, mode, value);
     if (code != CORRECT)
+    {
+        fprintf(stdout, "Program failed:");
         PrintError(code);
-    if (code != STACK_NOT_FOUND)
-        StackDump(stk);
+        if (code != STACK_NOT_FOUND)
+            StackDump(stk);
+    }
+    return code;
 }
