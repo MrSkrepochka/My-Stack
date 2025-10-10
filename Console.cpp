@@ -1,90 +1,90 @@
 #include "Console.h"
 
 
-bool Console(Stack_t* stk)
+void Console(Stack_t* stk, int* byte_code, size_t number_of_elements)
 {
-    int valueForPush = WRONG_VALUE_CONST;
-    int PopValue = 0;
-    size_t capacity = 0;
-    //char* command = (char*) calloc (5, sizeof(char));
-
-    char command[5] = "";
-
-
-    Commands mode = WRONG_COMMAND;
-
-    fprintf(stdout, "Enter command\n");
-
-    fscanf(stdin, "%4s", command);
-
-    if (strcmp (command, "INIT")== 0 )
-        mode = INIT;
-
-    if (strcmp (command, "PUSH")== 0 )
-        mode = PUSH;
-
-    if (strcmp (command, "POP")== 0 )
-        mode = POP;
-
-    if (strcmp (command, "DEL")== 0 )
-        mode = DESTROY;
-
-    if (strcmp (command, "EXIT")== 0 )
-        mode = EXIT;
-
-    switch (mode)
+    size_t IP = 0;
+    while (IP < number_of_elements)
     {
+        int value = 0;
+        int PopValue = 0;
+        size_t capacity = 0;
+        int command = byte_code[IP];
 
-    case INIT:
-        fprintf (stdout,"Enter stack capacity\n");
+        switch (command)
+        {
 
-        fscanf (stdin, "%zu", &capacity);
-        StackInit (stk, capacity);
-        if (global_error != CORRECT)
-            nErrors++;
-        return true;
-        break;
-    case PUSH:
+        case 2: //INIT
+            capacity = (size_t) byte_code[IP + 1];
+            VERIFY(stk, 2, (int) capacity);
+            if (global_error != CORRECT)
+                return;
 
-        fprintf (stdout, "Enter integer value\n");
-        fscanf (stdin,"%d", &valueForPush);
-        StackPush (stk, valueForPush);
-        if (global_error != CORRECT)
-            {
-            nErrors++;
-            return true;
-            }
-        break;
-    case POP:
-        PopValue = StackPop (stk);
-        if (global_error != CORRECT)
-            {
-            nErrors++;
-            return true;
-            }
-        fprintf(stdout, "%d\n", PopValue);
-        return true;
-        break;
-    case DESTROY:
-        StackDestroy(stk);
-        if (global_error != CORRECT)
-            nErrors++;
+            StackInit (stk, capacity);
+            IP += 2;
+            break;
+        case 3: //PUSH
+            value = byte_code[IP + 1];
+            VERIFY(stk, 3, value);
 
-        return true;
-        break;
-    case EXIT:
-        if (stk -> data != NULL)
+            if (global_error != CORRECT)
+                return;
+
+            StackPush (stk, value);
+            IP += 2;
+
+            break;
+        case 4: //POP
+
+            VERIFY(stk, 4, 0);
+            if (global_error != CORRECT)
+                return;
+            PopValue = StackPop(stk);
+            fprintf(stdout, "%d\n", PopValue);
+            IP++;
+            break;
+
+        case 6: //ADD
+            VERIFY(stk, 6, 0);
+            if (global_error != CORRECT)
+                return;
+            StackAdd(stk);
+            IP++;
+            break;
+
+        case 7: //MUL
+            VERIFY(stk, 7, 0);
+            if (global_error != CORRECT)
+                return;
+            StackMul(stk);
+            IP++;
+            break;
+
+        case 8: //DIV
+            VERIFY(stk, 8, 0);
+            if (global_error != CORRECT)
+                return;
+            StackDiv(stk);
+            IP++;
+            break;
+
+        case 5: //DESTROY
+            VERIFY(stk, 5, 0);
+            if (global_error != CORRECT)
+                return;
             StackDestroy(stk);
-        return false;
-        break;
-    case WRONG_COMMAND:
-        fprintf (stdout, "Incorrect iput\n");
-        nErrors++;
-        return true;
-        break;
-    default:
-        break;
+            IP++;
+            break;
+        case 1: //EXIT
+            if (stk -> data != NULL)
+                StackDestroy(stk);
+            IP++;
+            return;
+            break;
+        default:
+            break;
+        }
     }
-    //free(command);
-    return true;
+
+    return;
 }

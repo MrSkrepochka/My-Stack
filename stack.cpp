@@ -3,32 +3,17 @@
 const int CapacityDoubler = 2;
 
 
-Err_t StackInit (Stack_t* stk, size_t capacity)
+void StackInit (Stack_t* stk, size_t capacity)
 {
-    Commands mode = INIT;
-
-    size_t oldCapacity = stk -> capacity;
-
+    *stk = {NULL, 0, 0};
+    stk -> size = 0;
     stk -> capacity = capacity;
-    //Verificator (stk, INIT);
-    VERIFY(stk, mode, WRONG_VALUE_CONST);
-    if (global_error == CORRECT)
-        stk -> data = (int*) calloc (capacity, sizeof(int));
-    else
-        {
-            stk -> capacity = oldCapacity;
-        }
-
-    return global_error;
+    stk -> data = (int*) calloc (capacity, sizeof(int));
+    return;
 }
 
-Err_t StackPush (Stack_t* stk, int value)
+void StackPush (Stack_t* stk, int value)
 {
-    Commands mode = PUSH;
-    VERIFY(stk, mode, value);
-    //Verificator (stk, PUSH, value);
-    if (global_error != CORRECT)
-        return global_error;
 
     if (stk -> size < stk -> capacity)
     {
@@ -45,38 +30,50 @@ Err_t StackPush (Stack_t* stk, int value)
         stk -> size++;
     }
 
-    return CORRECT;
+    return;
 }
 
 int StackPop (Stack_t* stk)
 {
-    VERIFY(stk, POP, WRONG_VALUE_CONST);
-    if (global_error == CORRECT)
-    //if (Verificator (stk, POP) == CORRECT)
-    {
     int x = stk -> data [stk -> size - 1];
     stk -> data [stk -> size -1] = 0;
     stk -> size--;
     return x;
-    }
-    return -1;
 }
 
-Err_t StackDestroy (Stack_t* stk)
+void StackDestroy (Stack_t* stk)
 {
-    Commands mode = DESTROY;
-    VERIFY(stk, mode, WRONG_VALUE_CONST);
-    if (global_error == CORRECT)
-    {
-    //Verificator (stk, DESTROY);
+
     free(stk -> data);
     stk -> data = NULL;
     stk -> size = 0;
     stk -> capacity = 0;
-    return CORRECT;
-    }
-    return global_error;
-    //stk = NULL;
+    stk = NULL;
+    return;
 
 }
 
+void StackAdd (Stack_t* stk)
+{
+    int x1 = StackPop (stk);
+    int x2 = StackPop (stk);
+    StackPush(stk, x1 + x2);
+    return;
+}
+
+void StackDiv (Stack_t* stk)
+{
+    int divide_by = StackPop(stk);
+    int to_divide = StackPop(stk);
+    int result = to_divide / divide_by;
+    StackPush(stk, result);
+    return;
+}
+
+void StackMul (Stack_t* stk)
+{
+    int x1 = StackPop (stk);
+    int x2 = StackPop (stk);
+    StackPush(stk, x1 * x2);
+    return;
+}

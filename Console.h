@@ -3,6 +3,6 @@
 
 #include "stack.h"
 
-bool Console (Stack_t* stk = NULL);
+void Console (Stack_t* stk, int* array, size_t number_of_elements);
 
 #endif

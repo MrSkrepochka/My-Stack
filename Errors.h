@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
+#include <sys/stat.h>
 
 #define WRONG_VALUE_CONST 0x11A15ED
 
@@ -22,19 +23,23 @@ enum Err_t {
     STACK_NOT_FOUND = 1,
     STACK_ALREADY_EXISTS = 2,
     WRONG_CAPACITY = 3,
-    WRONG_VALUE = 4,
-    EMPTY_STACK = 5,
+    EMPTY_STACK = 4,
+    DIV_0 = 5
 
 };
 
 enum Commands{
-    WRONG_COMMAND = 0,
+    WRONG_COMMAND = -1,
+    SKIP_EMPTY_LINE = 0,
     EXIT = 1,
     INIT = 2,
     PUSH = 3,
     POP = 4,
     DESTROY = 5,
     ADD = 6,
+    MUL = 7,
+    DIV = 8,
+    JB = 9
 
 };
 
@@ -48,9 +53,9 @@ enum Commands{
 
 #define DUMP(code, stk) \
     do { \
-        fprintf(stdout, "Program failed: "); \
+        fprintf(stdout, "Runtime-error: "); \
         PrintError(code); \
-        if (code != STACK_NOT_FOUND) \
+        if (code != STACK_NOT_FOUND && code != WRONG_CAPACITY) \
             { \
                 fprintf(stdout, "StackDump called from %s in %s:%d\n\t", __func__, __FILE__, __LINE__ ); \
                 fprintf(stdout, "stack [0x%p]\n\t", stk); \
@@ -60,6 +65,10 @@ enum Commands{
                 for (size_t element = 0; element < stk -> size; element++) \
                 {   \
                     fprintf(stdout, "* [%zu] = %d\n\t\t\t", element, stk -> data[element]); \
+                }   \
+                for (size_t element = stk -> size; element < stk -> capacity; element++) \
+                {   \
+                    fprintf(stdout, "* [%zu] = %d (uninitialized)\n\t\t\t", element, stk -> data[element]); \
                 }   \
                  fprintf(stdout,"\n\t\t}\n"); \
             } \
@@ -71,8 +80,8 @@ extern Err_t global_error;
 
 void StackDump (Stack_t* stk);
 void PrintError (Err_t errorCode);
-Err_t Verificator (Stack_t* stk, Commands mode, int value = WRONG_VALUE_CONST);
 
-Err_t StackVerify (Stack_t* stk, Commands mode,  int ValueForPush);
+
+Err_t StackVerify (Stack_t* stk, int mode,  int ValueForPush);
 
 #endif
