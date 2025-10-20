@@ -8,8 +8,6 @@
 #include <math.h>
 #include <sys/stat.h>
 
-#define WRONG_VALUE_CONST 0x11A15ED
-
 
 struct Stack_t{
     int* data;
@@ -24,13 +22,15 @@ enum Err_t {
     STACK_ALREADY_EXISTS = 2,
     WRONG_CAPACITY = 3,
     EMPTY_STACK = 4,
-    DIV_0 = 5
+    DIV_0 = 5,
+    EMPTY_REG = 6,
+    NOWHERE_TO_RETURN = 7
 
 };
 
 enum Commands{
     WRONG_COMMAND = -1,
-    SKIP_EMPTY_LINE = 0,
+    SKIP_LINE = 0,
     EXIT = 1,
     INIT = 2,
     PUSH = 3,
@@ -39,26 +39,32 @@ enum Commands{
     ADD = 6,
     MUL = 7,
     DIV = 8,
-    JB = 9
-
+    JB = 9,
+    PUSHR = 10,
+    POPR = 11,
+    JBE = 12,
+    JE = 13,
+    JA = 14,
+    CALL = 15,
+    RET = 16
 };
 
-#define VERIFY(stk, mode, value) \
+#define VERIFY(stk, mode, value, name) \
     do { \
         Err_t __code = StackVerify(stk, mode, value); \
         if (__code != CORRECT) \
-            {DUMP(__code, stk);} else \
+            {DUMP(__code, stk, name);} else \
             {global_error = CORRECT;} \
     } while (0)
 
-#define DUMP(code, stk) \
+#define DUMP(code, stk, name) \
     do { \
         fprintf(stdout, "Runtime-error: "); \
         PrintError(code); \
         if (code != STACK_NOT_FOUND && code != WRONG_CAPACITY) \
             { \
                 fprintf(stdout, "StackDump called from %s in %s:%d\n\t", __func__, __FILE__, __LINE__ ); \
-                fprintf(stdout, "stack [0x%p]\n\t", stk); \
+                fprintf(stdout, "%s_stack [0x%p]\n\t", name, stk); \
                 fprintf(stdout, "size = %zu\n\t\t", stk -> size); \
                 fprintf(stdout, "capacity = %zu\n\t\t", stk -> capacity); \
                 fprintf(stdout, "data [0x%p]\n\t\t{\n\n\t\t\t", stk -> data); \
@@ -77,6 +83,8 @@ enum Commands{
 
 extern int nErrors;
 extern Err_t global_error;
+extern int Registers[16];
+extern const int WRONG_VALUE_CONST;
 
 void StackDump (Stack_t* stk);
 void PrintError (Err_t errorCode);

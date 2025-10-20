@@ -1,8 +1,12 @@
 #include "Console.h"
 
+const int WRONG_VALUE_CONST =0x11A15ED;
+int Registers[16];
+void RegInit(int* array, size_t size);
+
 int main()
 {
-    
+    RegInit(Registers, 16);
 
     FILE* file = fopen ("ByteCode.txt", "r");
 
@@ -20,9 +24,19 @@ int main()
     }*/
 
     Stack_t stk1 = {NULL, 0, 0};
+    Stack_t adr_stk = {NULL, 0, 0};
 
-    Console(&stk1, byte_code, number_of_elements);
+
+    Console(&stk1, &adr_stk, byte_code, number_of_elements);
 
     fclose(file);
     return 0;
+}
+
+void RegInit(int* registers, size_t size)
+{
+    for (size_t counter = 0; counter < size; counter++)
+    {
+        registers[counter] = WRONG_VALUE_CONST;
+    }
 }

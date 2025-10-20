@@ -23,6 +23,12 @@ void PrintError (Err_t err)
             break;
         case DIV_0:
             fprintf(stdout, "Attempting to divide by 0\n");
+            break;
+        case EMPTY_REG:
+            fprintf(stdout, "Attempting to push a value from an empty register\n");
+        case NOWHERE_TO_RETURN:
+            fprintf(stdout, "Return function has no address to go to\n");
+            break;
         default:
             break;
     }
@@ -59,7 +65,6 @@ Err_t StackVerify(Stack_t* stk, int mode, int Value)
             return STACK_NOT_FOUND;
         if (stk -> size <2)
             return EMPTY_STACK;
-
         break;
     case 7: //MUL
         if (stk -> data == NULL)
@@ -67,6 +72,7 @@ Err_t StackVerify(Stack_t* stk, int mode, int Value)
         if (stk -> size <2)
             return EMPTY_STACK;
     case 8: // DIV
+
         if (stk -> data == NULL)
             return STACK_NOT_FOUND;
         if (stk -> size <2)
@@ -74,6 +80,19 @@ Err_t StackVerify(Stack_t* stk, int mode, int Value)
         if (stk -> data[stk ->size - 1] == 0)
             return DIV_0;
         break;
+
+    case 10: // PUSHR
+        if (stk -> data == NULL)
+            return STACK_NOT_FOUND;
+        if (Registers[Value] == WRONG_VALUE_CONST)
+            return EMPTY_REG;
+        break;
+
+    case 16: //RET
+        if (stk -> size <= 0)
+            return NOWHERE_TO_RETURN;
+        break;
+        
     default:
         break;
     }
