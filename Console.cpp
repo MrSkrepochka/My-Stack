@@ -143,6 +143,8 @@ void Console(Stack_t* stk, Stack_t* adr_stk, int* byte_code, size_t number_of_el
         case 1: //EXIT
             if (stk -> data != NULL)
                 StackDestroy(stk);
+            if (adr_stk -> data != NULL)
+                StackDestroy(adr_stk);
             IP++;
             return;
             break;
